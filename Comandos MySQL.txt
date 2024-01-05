@@ -1,0 +1,140 @@
+Comandos MySQL
+
+select ano, nome, carga from cursos
+order by ano, nome;
+
+select nome, descricao, ano from cursos
+where ano < '2015'
+order by ano, nome;
+
+select nome, ano from cursos
+where ano between 2014 and 2016
+order by ano desc, nome;
+
+select nome, descricao, ano from cursos
+where ano in (2014, 2016, 2020)
+order by ano;
+
+select nome, carga, totaulas from cursos 
+where carga > 35 and totaulas < 30;
+
+Wildcards
+
+select * from cursos
+where nome like 'p%'; 
+
+select * from cursos
+where nome like '%A'; 
+
+select * from cursos
+where nome like '%A%'; 
+
+select * from cursos
+where nome not like '%A%'; 
+
+select * from cursos
+where nome like 'ph%p'; 
+
+select * from cursos
+where nome like 'ph%p%'; 
+
+select * from cursos
+where nome like 'ph%p_'; 
+
+select * from cursos
+where nome like 'p_p%'; 
+
+select * from gafanhotos
+where nome like '%silva%'; 
+
+Distinguindo 
+
+select distinct nacionalidade from gafanhotos
+order by nacionalidade;
+
+funções de agregação
+
+select count(*) from cursos where carga > 40;
+
+select max(carga) from cursos;
+select max(totaulas) from cursos where ano = '2016';
+
+select nome, min(totaulas) from cursos where ano = '2016';
+
+select sum(totaulas) from cursos where ano = '2016';
+
+select avg(totaulas) from cursos where ano = '2016';
+
+Agrupamento
+
+select totaulas, count(*) from cursos
+group by totaulas
+order by totaulas;
+
+select carga, count(*) from cursos where totaulas = 30
+group by carga;
+
+select ano, count(*) from cursos
+where totaulas > 30
+group by ano
+having ano > 2013
+order by count(*) desc;
+
+select avg(carga) from cursos;
+
+select carga, count(*) from cursos 
+where ano > 2015
+group by carga
+having carga > (select avg(carga) from cursos);
+
+Chaves estrageiras
+
+describe gafanhotos;
+alter table gafanhotos
+add column cursopreferido int;
+
+alter table gafanhotos
+add foreign key (cursopreferido)
+references cursos(idcurso);
+
+select * from gafanhotos;
+select * from cursos;
+
+update gafanhotos set cursopreferido = '6' where id = '1';
+
+select g.nome, c.nome, c.ano
+from gafanhotos as g join cursos as c
+on c.idcurso = g.cursopreferido
+order by g.nome;
+
+select g.nome, c.nome, c.ano
+from gafanhotos as g left join cursos as c
+on c.idcurso = g.cursopreferido
+
+select g.nome, c.nome, c.ano
+from gafanhotos as g right join cursos as c
+on c.idcurso = g.cursopreferido
+
+Chave estrageiras em muitos-para-muitos
+
+create table gafanhoto_assiste_curso (
+	id int not null auto_increment,
+    data date,
+    idgafanhoto int,
+    idcurso int,
+    primary key (id),
+    foreign key (idgafanhoto) references gafanhotos(id),
+    foreign key (idcurso) references cursos(idcurso)
+) default charset = utf8mb4;
+
+insert into gafanhoto_assiste_curso values
+(default, '2023-08-01', '1', '2');
+
+select * from gafanhoto_assiste_curso;
+
+select g.nome, c.nome from gafanhotos g
+join gafanhoto_assiste_curso a 
+on g.id = a.idgafanhoto
+join cursos c
+on c.idcurso = a.idcurso
+order by g.nome;
